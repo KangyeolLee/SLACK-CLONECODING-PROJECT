@@ -100,6 +100,7 @@ router.get(
                 },
                 attributes: ["UserId"],
               },
+              required: true,
             },
           ],
         })
@@ -250,11 +251,11 @@ router.get(
         where: {
           ChannelId: channel.id,
           createdAt: {
-            [Sequelize.Op.gt]: new Date(req.query.after),
+            [Op.gt]: new Date(+req.query.after),
           },
         },
       });
-      return res.json(count > 0);
+      return res.json(count);
     } catch (error) {
       next(error);
     }
@@ -355,7 +356,7 @@ router.post(
         const chat = await ChannelChat.create({
           UserId: req.user.id,
           ChannelId: channel.id,
-          content: req.files[i].filename,
+          content: req.files[i].path,
         });
         const chatWithUser = await ChannelChat.findOne({
           where: { id: chat.id },
@@ -442,10 +443,10 @@ router.get(
       const count = await DM.count({
         where: {
           WorkspaceId: workspace.id,
-          SenderId: req.user.id,
-          ReceiverId: req.params.id,
+          SenderId: req.params.id,
+          ReceiverId: req.user.id,
           createdAt: {
-            [Sequelize.Op.gt]: new Date(req.query.after),
+            [Op.gt]: new Date(+req.query.after),
           },
         },
       });
@@ -522,7 +523,7 @@ router.post(
           SenderId,
           ReceiverId,
           WorkspaceId: workspace.id,
-          content: req.files[i].filename,
+          content: req.files[i].path,
         });
         const dmWithSender = await DM.findOne({
           where: { id: dm.id },
